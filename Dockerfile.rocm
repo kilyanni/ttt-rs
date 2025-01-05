@@ -1,0 +1,133 @@
+# ROCm Dockerfile for TTT - includes full Rust toolchain for on-server development
+# Uses cargo-chef for dependency caching - deps only rebuild when Cargo.toml/lock change
+
+# =============================================================================
+# Stage 1: Chef - prepare dependency recipe
+# =============================================================================
+FROM rocm/dev-ubuntu-24.04:6.3.3 AS chef
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update && apt-get install -y \
+    build-essential pkg-config cmake libssl-dev libsqlite3-dev ca-certificates curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Rust stable
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain stable
+ENV PATH="/root/.cargo/bin:${PATH}"
+
+RUN cargo install cargo-chef
+
+WORKDIR /app
+
+# =============================================================================
+# Stage 2: Planner - analyze dependencies
+# =============================================================================
+FROM chef AS planner
+
+COPY rust /app/rust
+
+WORKDIR /app/rust
+RUN cargo chef prepare --recipe-path recipe.json
+
+# =============================================================================
+# Stage 3: Builder - build dependencies (cached), then build code
+# =============================================================================
+FROM chef AS builder
+
+ENV ROCM_PATH=/opt/rocm
+ENV HIP_PATH=/opt/rocm
+ENV ROCM_DEVICE_LIB_PATH=/opt/rocm/amdgcn/bitcode
+ENV PATH="${ROCM_PATH}/bin:${PATH}"
+ENV LD_LIBRARY_PATH="${ROCM_PATH}/lib:${LD_LIBRARY_PATH}"
+
+# Copy recipe and build dependencies only (this layer is cached)
+COPY --from=planner /app/rust/recipe.json /app/rust/recipe.json
+
+# Copy workspace manifest for dependency resolution
+COPY rust/Cargo.toml rust/Cargo.lock /app/rust/
+
+WORKDIR /app/rust
+RUN cargo chef cook --release --no-default-features --features rocm --recipe-path recipe.json
+
+# Now copy actual source and build (only this rebuilds on code changes)
+COPY rust /app/rust
+RUN cargo build --release --no-default-features --features rocm --all-targets
+
+# =============================================================================
+# Stage 4: Runtime - final image with dev tools
+# =============================================================================
+FROM rocm/dev-ubuntu-24.04:6.3.3 AS runtime
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Install system dependencies including dev tools
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    pkg-config \
+    cmake \
+    ninja-build \
+    git \
+    curl \
+    wget \
+    vim \
+    htop \
+    tmux \
+    fish \
+    ripgrep \
+    fd-find \
+    libssl-dev \
+    libsqlite3-dev \
+    ca-certificates \
+    nvtop \
+    btm \
+    htop \
+    btop \
+    neovim \
+    python3 \
+    python3-pip \
+    python3-venv \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Rust stable (for on-server development)
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain stable
+ENV PATH="/root/.cargo/bin:${PATH}"
+
+# Install useful cargo tools
+RUN cargo install --locked cargo-nextest cargo-watch
+
+# Install Python packages for embedding
+RUN pip3 install --break-system-packages tokenizers datasets
+
+# Set up ROCm environment
+ENV ROCM_PATH=/opt/rocm
+ENV HIP_PATH=/opt/rocm
+ENV ROCM_DEVICE_LIB_PATH=/opt/rocm/amdgcn/bitcode
+ENV PATH="${ROCM_PATH}/bin:${PATH}"
+ENV LD_LIBRARY_PATH="${ROCM_PATH}/lib:${LD_LIBRARY_PATH}"
+ENV TTT_PRETOKENIZED_PATH=/workspace/dataset
+
+WORKDIR /app
+
+# Copy source code for on-server development
+COPY rust /app/rust
+
+# Copy pre-built binary and target directory (includes deps for incremental builds)
+COPY --from=builder /app/rust/target /app/rust/target
+
+# Create symlink to binary for easy access
+RUN ln -s /app/rust/target/release/ttt /usr/local/bin/ttt
+RUN ln -s /app/rust/target/release/ttt-harness /usr/local/bin/ttt-harness
+RUN ln -s /app/rust/target/release/ttt-bench /usr/local/bin/ttt-bench
+
+# Generate shell completions
+RUN mkdir -p /root/.config/fish/completions && \
+    /usr/local/bin/ttt completions fish > /root/.config/fish/completions/ttt.fish && \
+    /usr/local/bin/ttt completions bash > /etc/bash_completion.d/ttt && \
+    mkdir -p /usr/local/share/zsh/site-functions && \
+    /usr/local/bin/ttt completions zsh > /usr/local/share/zsh/site-functions/_ttt
+
+# Set fish as default login shell
+RUN chsh -s /usr/bin/fish
+
+CMD ["fish"]

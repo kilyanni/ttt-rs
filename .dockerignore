@@ -1,0 +1,30 @@
+# Build artifacts
+**/target/
+**/*.rs.bk
+**/Cargo.lock.bak
+
+# Git
+.git/
+.gitignore
+.gitmodules
+
+# Nix
+result*
+.direnv/
+flake.lock
+
+# Worktrees
+.worktree/
+
+# Editor/IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs and misc
+*.log
+
+# Irrelevant directories
+nix/
+.github/

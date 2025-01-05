@@ -1,0 +1,23 @@
+[package]
+name = "ttt-training"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+ttt-config = { workspace = true }
+ttt-core = { workspace = true }
+ttt-layer = { workspace = true }
+ttt-data = { workspace = true }
+ttt-fused = { workspace = true }
+burn = { workspace = true, features = ["train", "tui", "metrics", "std"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+[features]
+default = []
+bf16 = ["ttt-layer/bf16"]
+rocm = ["ttt-layer/rocm"]
+cuda = ["ttt-layer/cuda"]
+wgpu = ["ttt-layer/wgpu"]
+cpu = ["ttt-layer/cpu"]
+streaming = ["ttt-layer/streaming"]

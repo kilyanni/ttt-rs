@@ -1,0 +1,71 @@
+[workspace]
+members = ["kernels", "core", "fused", "layer", "data", "training", "cli", "thundercube", "harness", "config"]
+resolver = "2"
+
+[workspace.package]
+version = "0.1.0"
+edition = "2024"
+
+[workspace.dependencies]
+# Internal crates
+ttt-config = { path = "config" }
+ttt-kernels = { path = "kernels" }
+ttt-core = { path = "core" }
+ttt-fused = { path = "fused" }
+ttt-layer = { path = "layer" }
+ttt-data = { path = "data" }
+ttt-training = { path = "training" }
+
+thundercube = { version = "0.1", path = "thundercube" }
+
+
+# Burn ecosystem
+burn = { version = "0.20", default-features = false }
+burn-fusion = "0.20"
+burn-cubecl = "0.20"
+burn-backend = { version = "0.20", default-features = false }
+cubecl = "0.9"
+cubek = { version = "0.1", features = ["reduce", "matmul"] }
+half = "2.7"
+
+# Tokenization
+tokenizers = { version = "0.22", features = ["http"] }
+
+# Serialization
+serde = { version = "1.0", features = ["rc"] }
+serde_json = "1.0"
+
+# Utilities
+num-traits = "0.2"
+derive-new = "0.7"
+glob = "0.3"
+memmap2 = "0.9"
+rayon = "1.11"
+bytemuck = { version = "1.25", features = ["derive"] }
+dirs = "6.0"
+log = "0.4"
+env_logger = "0.11"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+clap = { version = "4", features = ["derive"] }
+clap_complete = "4"
+paste = "1"
+# Dev dependencies
+criterion = { version = "0.8", features = ["html_reports", "csv_output"] }
+safetensors = "0.7"
+rand = "0.10"
+test-case = "3.3"
+
+[patch.crates-io]
+cubecl = { git = "https://github.com/kilyanni/cubecl", branch = "bf16-hip-fix" }
+cubecl-common = { git = "https://github.com/kilyanni/cubecl", branch = "bf16-hip-fix" }
+cubecl-core = { git = "https://github.com/kilyanni/cubecl", branch = "bf16-hip-fix" }
+cubecl-cpp = { git = "https://github.com/kilyanni/cubecl", branch = "bf16-hip-fix" }
+cubecl-hip = { git = "https://github.com/kilyanni/cubecl", branch = "bf16-hip-fix" }
+cubecl-ir = { git = "https://github.com/kilyanni/cubecl", branch = "bf16-hip-fix" }
+cubecl-macros = { git = "https://github.com/kilyanni/cubecl", branch = "bf16-hip-fix" }
+cubecl-macros-internal = { git = "https://github.com/kilyanni/cubecl", branch = "bf16-hip-fix" }
+cubecl-opt = { git = "https://github.com/kilyanni/cubecl", branch = "bf16-hip-fix" }
+cubecl-runtime = { git = "https://github.com/kilyanni/cubecl", branch = "bf16-hip-fix" }
+cubecl-std = { git = "https://github.com/kilyanni/cubecl", branch = "bf16-hip-fix" }
+cubecl-hip-sys = { git = "https://github.com/kilyanni/cubecl-hip-sys", branch = "rocm-update" }

@@ -1,0 +1,67 @@
+[package]
+name = "ttt-cli"
+version.workspace = true
+edition.workspace = true
+
+default-run = "ttt"
+
+[dependencies]
+ttt-config = { workspace = true, features = ["cli"] }
+ttt-kernels = { workspace = true }
+ttt-core = { workspace = true }
+ttt-fused = { workspace = true }
+ttt-layer = { workspace = true }
+ttt-data = { workspace = true }
+ttt-training = { workspace = true }
+burn = { workspace = true, features = [
+    "train",
+    "tui",
+    "metrics",
+    "autodiff",
+    "cubecl",
+    "fusion",
+] }
+clap.workspace = true
+clap_complete.workspace = true
+glob.workspace = true
+tracing.workspace = true
+tracing-subscriber.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+half.workspace = true
+
+[dev-dependencies]
+criterion.workspace = true
+safetensors.workspace = true
+rand.workspace = true
+paste.workspace = true
+test-case.workspace = true
+
+[[bin]]
+name = "ttt"
+path = "src/main.rs"
+
+[[bin]]
+name = "ttt-bench"
+path = "src/bench.rs"
+
+[[bench]]
+name = "ttt-bench-criterion"
+path = "benches/ttt_benchmark.rs"
+harness = false
+
+[[bench]]
+name = "ttt-tile-configs-bench"
+path = "benches/tile_configs.rs"
+harness = false
+
+[features]
+default = []
+bf16 = ["ttt-training/bf16"]
+rocm = ["ttt-training/rocm"]
+cuda = ["ttt-training/cuda"]
+wgpu = ["ttt-training/wgpu"]
+cpu = ["ttt-training/cpu"]
+streaming = ["ttt-training/streaming"]
+sweep-tests = []
+tile-tuning = []

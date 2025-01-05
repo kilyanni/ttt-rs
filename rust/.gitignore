@@ -1,0 +1,14 @@
+target/
+artifacts*/
+validation_data_reference/
+validation_data/
+bench-results/
+gpucore.*
+__pycache__/
+
+*-runs/
+
+profile_analysis/
+profile_artifacts/
+profile_out/
+*.pftrace

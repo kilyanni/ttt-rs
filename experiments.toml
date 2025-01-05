@@ -1,0 +1,280 @@
+[harness]
+total_vram_gb = 20
+vram_margin = 0.40
+on_failure = "retry"
+max_retries = 2
+state_file = "./harness_state.json"
+
+hang_timeout_secs = 600
+idle_timeout_secs = 300
+settle_grace_secs = 60
+
+[harness.runpod]
+enabled = true
+
+[defaults]
+tokenizer = "/workspace/tinystories-4k.json"
+size = "60m"
+batch = 32
+mini_batch_size = 16
+warmup_steps = 500
+max_seq_len = 256
+lr = 4e-3
+grad_accum = 2
+epochs = 5
+dtype = "bf16"
+out_prefix = "/vol/exo/runpod/organized"
+
+# ============================================================
+# Positional encodings — long context
+# ============================================================
+
+[[runs]]
+name = "posenc/long-rope"
+layer_type = "linear"
+base_lr = 1.0
+max_seq_len = 1024
+mini_batch_size = 32
+epochs = 4
+
+[[runs]]
+name = "posenc/long-none"
+layer_type = "linear"
+pos_encoding = "none"
+base_lr = 1.0
+max_seq_len = 1024
+mini_batch_size = 32
+epochs = 4
+
+[[runs]]
+name = "posenc/long-abs"
+layer_type = "linear"
+pos_encoding = "absolute"
+base_lr = 1.0
+max_seq_len = 1024
+mini_batch_size = 32
+epochs = 4
+
+[[runs]]
+name = "posenc/long-rope-global"
+layer_type = "linear"
+pos_encoding = "rope-global"
+base_lr = 1.0
+max_seq_len = 1024
+mini_batch_size = 32
+epochs = 10
+
+# ============================================================
+# Positional encodings — short context
+# ============================================================
+
+[[runs]]
+name = "posenc/short-rope"
+layer_type = "linear"
+base_lr = 1.0
+epochs = 10
+
+[[runs]]
+name = "posenc/short-none"
+layer_type = "linear"
+pos_encoding = "none"
+base_lr = 1.0
+epochs = 10
+
+[[runs]]
+name = "posenc/short-abs"
+layer_type = "linear"
+pos_encoding = "absolute"
+base_lr = 1.0
+epochs = 10
+
+[[runs]]
+name = "posenc/short-rope-global"
+layer_type = "linear"
+pos_encoding = "rope-global"
+base_lr = 1.0
+epochs = 10
+
+# ============================================================
+# MLP depth
+# ============================================================
+
+[[runs]]
+name = "mlp/depth-1h"
+layer_type = "mlp"
+base_lr = 0.1
+
+[[runs]]
+name = "mlp/depth-2h"
+layer_type = "mlp2"
+base_lr = 0.1
+
+[[runs]]
+name = "mlp/depth-3h"
+layer_type = "mlp3"
+base_lr = 0.1
+
+[[runs]]
+name = "mlp/depth-4h"
+layer_type = "mlp4"
+base_lr = 0.1
+
+# ============================================================
+# MLP expansion factor
+# ============================================================
+
+[[runs]]
+name = "mlp/exp-1x"
+layer_type = "mlp"
+base_lr = 0.1
+mlp_expansion = 1
+
+[[runs]]
+name = "mlp/exp-2x"
+layer_type = "mlp"
+base_lr = 0.1
+mlp_expansion = 2
+
+[[runs]]
+name = "mlp/exp-8x"
+layer_type = "mlp"
+base_lr = 0.1
+mlp_expansion = 8
+
+# ============================================================
+# MLP depth x expansion cross
+# ============================================================
+
+[[runs]]
+name = "mlp/depth-4h-exp-1x"
+layer_type = "mlp4"
+base_lr = 0.1
+mlp_expansion = 1
+
+# ============================================================
+# MLP robustness checks
+# ============================================================
+
+[[runs]]
+name = "mlp/robust-10ep"
+layer_type = "mlp"
+base_lr = 0.1
+epochs = 10
+
+[[runs]]
+name = "mlp/robust-run2"
+layer_type = "mlp"
+base_lr = 0.1
+mlp_expansion = 1
+
+[[runs]]
+name = "mlp/robust-nopos"
+layer_type = "mlp"
+pos_encoding = "none"
+base_lr = 0.1
+mlp_expansion = 1
+epochs = 10
+
+# ============================================================
+# Mixed layers
+# ============================================================
+
+[[runs]]
+name = "mixed/3lin-3mlp"
+layer_type = "3*linear,3*mlp"
+base_lr = 0.5
+epochs = 10
+
+[[runs]]
+name = "mixed/3mlp-3lin"
+layer_type = "3*mlp,3*linear"
+base_lr = 0.5
+epochs = 10
+
+[[runs]]
+name = "mixed/2lin-2mlp-2lin"
+layer_type = "2*linear,2*mlp,2*linear"
+base_lr = 0.5
+epochs = 10
+
+# ============================================================
+# Adam optimizer
+# ============================================================
+
+[[runs]]
+name = "adam/sgd-baseline"
+layer_type = "linear"
+base_lr = 1.0
+epochs = 10
+
+[[runs]]
+name = "adam/lr1e-3"
+layer_type = "linear-adam"
+base_lr = 1.0
+adam_lr = 1e-3
+adam_beta1 = 0.0
+adam_beta2 = 0.99
+epochs = 10
+
+[[runs]]
+name = "adam/lr1e-4"
+layer_type = "linear-adam"
+base_lr = 1.0
+adam_lr = 1e-4
+adam_beta1 = 0.0
+adam_beta2 = 0.99
+epochs = 10
+
+[[runs]]
+name = "adam/lr1e-5"
+layer_type = "linear-adam"
+base_lr = 1.0
+adam_lr = 1e-5
+adam_beta1 = 0.0
+adam_beta2 = 0.99
+epochs = 10
+
+[[runs]]
+name = "adam/momentum"
+layer_type = "linear-adam"
+base_lr = 1.0
+adam_lr = 1e-5
+adam_beta1 = 0.9
+adam_beta2 = 0.99
+epochs = 10
+
+[[runs]]
+name = "adam/highbeta2"
+layer_type = "linear-adam"
+base_lr = 1.0
+adam_lr = 1e-4
+adam_beta1 = 0.0
+adam_beta2 = 0.999
+
+[[runs]]
+name = "adam/nopos"
+layer_type = "linear-adam"
+pos_encoding = "none"
+base_lr = 1.0
+adam_lr = 1e-4
+adam_beta1 = 0.0
+adam_beta2 = 0.99
+epochs = 10
+
+# ============================================================
+# Mixed SGD/Adam layers
+# ============================================================
+
+[[runs]]
+name = "adam-mixed/sgd-baseline"
+layer_type = "linear"
+base_lr = 1.0
+
+[[runs]]
+name = "adam-mixed/3sgd-3adam"
+layer_type = "3*linear,3*linear-adam"
+base_lr = 1.0
+adam_lr = 1e-5
+adam_beta1 = 0.0
+adam_beta2 = 0.99
+epochs = 10

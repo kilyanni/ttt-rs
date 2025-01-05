@@ -1,0 +1,25 @@
+# CubeCL configuration
+# See: https://burn.dev/books/cubecl/advanced-usage/config.html
+
+[profiling]
+# logger = { level = "basic", stdout = true }
+# logger = { level = "medium", file = "cubecl.log", append = true }
+#
+# disabled: No profiling logs.
+# minimal: Only logs which kernels run.
+# basic: Adds basic profiling info.
+# medium: More detailed profiling.
+# full: Maximum detail.
+
+
+[compilation]
+cache = "target"
+
+[autotune]
+level = "balanced"
+
+[streaming]
+# Use multiple HIP streams to allow persistent kernels to run independently.
+# Each persistent kernel layer needs its own stream, plus stream 0 for normal ops.
+# Set high enough to support models with many layers.
+max_streams = 64

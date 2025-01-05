@@ -1,0 +1,20 @@
+[package]
+name = "ttt-layer"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+ttt-config = { workspace = true }
+ttt-kernels = { workspace = true }
+ttt-core = { workspace = true }
+ttt-fused = { workspace = true }
+burn = { workspace = true, features = ["autodiff", "cubecl", "fusion"] }
+
+[features]
+default = []
+bf16 = ["ttt-fused/bf16"]
+rocm = ["ttt-fused/rocm"]
+cuda = ["ttt-fused/cuda"]
+wgpu = ["ttt-fused/wgpu"]
+cpu = ["ttt-fused/cpu"]
+streaming = ["ttt-fused/streaming"]

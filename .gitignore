@@ -1,0 +1,14 @@
+build/
+.direnv/
+result
+result-*
+.cache/
+
+sycl-test
+.worktree
+
+burn/profile_*/
+benches/results/
+.bench-result
+
+tinystories-*.json

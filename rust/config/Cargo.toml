@@ -1,0 +1,18 @@
+[package]
+name = "ttt-config"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+serde = { workspace = true, features = ["derive"] }
+clap = { workspace = true, features = ["derive"], optional = true }
+burn = { workspace = true, optional = true }
+
+[dev-dependencies]
+serde_json.workspace = true
+
+[features]
+default = []
+cli = ["clap"]
+clap = ["dep:clap"]
+burn = ["dep:burn"]

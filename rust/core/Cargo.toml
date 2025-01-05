@@ -1,0 +1,25 @@
+[package]
+name = "ttt-core"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+ttt-config = { workspace = true }
+ttt-kernels = { workspace = true }
+burn = { workspace = true, features = ["autodiff", "cubecl", "fusion"] }
+burn-backend = { workspace = true, features = ["cubecl"] }
+half.workspace = true
+num-traits.workspace = true
+derive-new.workspace = true
+serde.workspace = true
+paste.workspace = true
+
+[features]
+default = ["f32"]
+f32 = []
+bf16 = []
+f16 = []
+rocm = ["ttt-kernels/rocm"]
+cuda = ["ttt-kernels/cuda"]
+wgpu = ["ttt-kernels/wgpu"]
+cpu = ["ttt-kernels/cpu"]

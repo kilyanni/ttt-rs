@@ -1,0 +1,24 @@
+[package]
+name = "ttt-kernels"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+burn = { workspace = true, features = ["autodiff", "cubecl", "fusion"] }
+burn-fusion.workspace = true
+burn-cubecl.workspace = true
+burn-backend = { workspace = true, features = ["cubecl"] }
+cubecl.workspace = true
+thundercube.workspace = true
+half.workspace = true
+paste.workspace = true
+
+[dev-dependencies]
+rand.workspace = true
+
+[features]
+default = []
+rocm = ["burn/rocm", "cubecl/hip", "thundercube/rocm"]
+cuda = ["burn/cuda", "cubecl/cuda", "thundercube/cuda"]
+wgpu = ["burn/wgpu", "cubecl/wgpu", "thundercube/wgpu"]
+cpu = ["burn/cpu", "cubecl/cpu", "thundercube/cpu"]

@@ -1,0 +1,85 @@
+# Example TTT Training Harness Configuration
+#
+# Copy this file to harness.toml and customize for your setup.
+
+[harness]
+# Total available VRAM in GB (MI300X = 192GB)
+total_vram_gb = 192
+
+# Safety margin (10% buffer)
+vram_margin = 0.10
+
+# What to do on failure: "retry", "skip", or "abort"
+on_failure = "retry"
+
+# Maximum retry attempts per run
+max_retries = 2
+
+# Path to state file for persistence/crash recovery
+state_file = "./harness_state.json"
+
+# RUST_LOG value passed to child training processes (optional)
+# rust_log = "info"
+
+# Hang detection: kill if no progress update within N seconds (after first update)
+# hang_timeout_secs = 600
+
+# Idle detection: kill if no stdout/stderr activity within N seconds
+# idle_timeout_secs = 300
+
+# Grace period when a new process starts (all watchdogs pause)
+settle_grace_secs = 30
+
+[harness.runpod]
+# Auto-shutdown runpod when all runs complete
+# Requires RUNPOD_POD_ID environment variable and runpodctl CLI
+enabled = false
+
+[defaults]
+# Default values applied to all runs
+tokenizer = "gpt2"
+epochs = 10
+samples = 10000
+test_samples = 1000
+seq_len = 256
+lr = 2e-3
+ttt_base_lr = 1.0
+workers = 2
+grad_accum = 1
+warmup_steps = 5000
+out_prefix = "./runs"
+
+# Individual training runs
+# Each run can override any default value
+
+[[runs]]
+name = "linear-60m-batch32"
+size = "60m"
+inner = "linear"
+batch = 32
+
+[[runs]]
+name = "linear-60m-batch16"
+size = "60m"
+inner = "linear"
+batch = 16
+
+[[runs]]
+name = "mlp-60m-batch16"
+size = "60m"
+inner = "mlp"
+batch = 16
+
+[[runs]]
+name = "linear-125m-batch8"
+size = "125m"
+inner = "linear"
+batch = 8
+seq_len = 512
+
+[[runs]]
+name = "mlp-125m-batch8"
+size = "125m"
+inner = "mlp"
+batch = 8
+seq_len = 512

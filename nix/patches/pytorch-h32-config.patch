@@ -1,0 +1,15 @@
+--- a/ttt.py
++++ b/ttt.py
+@@ -34,6 +34,12 @@
+         "num_hidden_layers": 12,
+         "num_attention_heads": 12,
+     },
++    "125m-h32": {
++        "hidden_size": 768,
++        "intermediate_size": 2048,
++        "num_hidden_layers": 12,
++        "num_attention_heads": 24,
++    },
+     "350m": {
+         "hidden_size": 1024,
+         "intermediate_size": 2736,
