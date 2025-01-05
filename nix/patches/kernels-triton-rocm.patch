@@ -1,0 +1,122 @@
+diff --git a/mamba_ssm/__init__.py b/mamba_ssm/__init__.py
+index 5b1f4cd..270ef77 100644
+--- a/mamba_ssm/__init__.py
++++ b/mamba_ssm/__init__.py
+@@ -1,5 +1,6 @@
+ __version__ = "1.0.1"
+
+-from mamba_ssm.ops.selective_scan_interface import selective_scan_fn, mamba_inner_fn
+-from mamba_ssm.modules.mamba_simple import Mamba
+-from mamba_ssm.models.mixer_seq_simple import MambaLMHeadModel
++# Disabled - requires selective_scan_cuda CUDA extension
++# from mamba_ssm.ops.selective_scan_interface import selective_scan_fn, mamba_inner_fn
++# from mamba_ssm.modules.mamba_simple import Mamba
++# from mamba_ssm.models.mixer_seq_simple import MambaLMHeadModel
+diff --git a/ttt/triton_kernel/activations.py b/ttt/triton_kernel/activations.py
+index 1157502..73eed0d 100644
+--- a/ttt/triton_kernel/activations.py
++++ b/ttt/triton_kernel/activations.py
+@@ -4,7 +4,9 @@ import triton.language as tl
+ @triton.jit
+ def tanh_tl(x):
+     # Tanh is just a scaled sigmoid
+-    return 2 * tl.sigmoid(2 * x) - 1
++    # sigmoid requires fp32 on AMD
++    x_f32 = x.to(tl.float32)
++    return (2 * tl.sigmoid(2 * x_f32) - 1).to(x.dtype)
+
+ # from xformers impl.
+ @triton.jit
+diff --git a/ttt/triton_kernel/fused_gate_outln.py b/ttt/triton_kernel/fused_gate_outln.py
+index 5c6f605..44719dd 100644
+--- a/ttt/triton_kernel/fused_gate_outln.py
++++ b/ttt/triton_kernel/fused_gate_outln.py
+@@ -53,7 +53,7 @@ def _fuse_gate_ln_kernel(__XGate, __X, __Out,
+     ## LN(X)
+     mu = (tl.sum(X, 1) / F).to(O_dtype)
+     var = (tl.sum((X - mu) * (X - mu), 1) / F).to(O_dtype)
+-    std = tl.sqrt(var + 1e-6).to(O_dtype)
++    std = tl.sqrt((var + 1e-6).to(tl.float32)).to(O_dtype)  # sqrt requires fp32 on AMD
+     X_hat = ((X - mu) / std).to(O_dtype)  # [1,f]
+     LN_X = ln_weight * X_hat + ln_bias  # [1,f] * [K=1,f] + [1,f]
+
+diff --git a/ttt/triton_kernel/ttt_linear_decode.py b/ttt/triton_kernel/ttt_linear_decode.py
+index 08cc4eb..16063e7 100644
+--- a/ttt/triton_kernel/ttt_linear_decode.py
++++ b/ttt/triton_kernel/ttt_linear_decode.py
+@@ -88,7 +88,7 @@ def _decode_token_ker(
+
+     mu = (tl.sum(Z1, 1) / HF).to(O_dtype)  # fp16 -> fp32 after division, need cast back
+     var = (tl.sum((Z1 - mu) * (Z1 - mu), 1) / HF).to(O_dtype)
+-    std = tl.sqrt(var + 1e-6).to(O_dtype)  # fp16 -> fp32 after adding 1e-6, sqrt requires input fp32/fp64
++    std = tl.sqrt((var + 1e-6).to(tl.float32)).to(O_dtype)  # ROCm: sqrt requires fp32/fp64 input
+     Z1_hat = ((Z1 - mu) / std).to(O_dtype)  # [1,f]: fp16 div fp16 -> fp32
+
+     # Scale and shift
+@@ -121,7 +121,7 @@ def _decode_token_ker(
+     ## residual + postln
+     mu_bar = (tl.sum(Z1_bar, 1) / HF).to(O_dtype)
+     var_bar = (tl.sum((Z1_bar - mu_bar) * (Z1_bar - mu_bar), 1) / HF).to(O_dtype)
+-    std_bar = tl.sqrt(var_bar + 1e-6).to(O_dtype)
++    std_bar = tl.sqrt((var_bar + 1e-6).to(tl.float32)).to(O_dtype)  # ROCm: sqrt requires fp32/fp64 input
+     Z1_bar_hat = ((Z1_bar - mu_bar) / std_bar).to(O_dtype)  # [1,f]
+     LN_out_bar = ln_weight * Z1_bar_hat + ln_bias  # [1,f] * [K=1,f] + [1,f]
+     Z1_bar = XQ + LN_out_bar
+@@ -215,7 +215,7 @@ def _decode_last_token_in_mini_batch_ker(
+
+     mu = (tl.sum(Z1, 1) / HF).to(O_dtype)  # fp16 -> fp32 after division, need cast back
+     var = (tl.sum((Z1 - mu) * (Z1 - mu), 1) / HF).to(O_dtype)
+-    std = tl.sqrt(var + 1e-6).to(O_dtype)  # fp16 -> fp32 after adding 1e-6, sqrt requires input fp32/fp64
++    std = tl.sqrt((var + 1e-6).to(tl.float32)).to(O_dtype)  # ROCm: sqrt requires fp32/fp64 input
+     Z1_hat = ((Z1 - mu) / std).to(O_dtype)  # [1,f]: fp16 div fp16 -> fp32
+
+     # Scale and shift
+@@ -248,7 +248,7 @@ def _decode_last_token_in_mini_batch_ker(
+     ## residual + postln
+     mu_bar = (tl.sum(Z1_bar, 1) / HF).to(O_dtype)
+     var_bar = (tl.sum((Z1_bar - mu_bar) * (Z1_bar - mu_bar), 1) / HF).to(O_dtype)
+-    std_bar = tl.sqrt(var_bar + 1e-6).to(O_dtype)
++    std_bar = tl.sqrt((var_bar + 1e-6).to(tl.float32)).to(O_dtype)  # ROCm: sqrt requires fp32/fp64 input
+     Z1_bar_hat = ((Z1_bar - mu_bar) / std_bar).to(O_dtype)  # [1,f]
+     LN_out_bar = ln_weight * Z1_bar_hat + ln_bias  # [1,f] * [K=1,f] + [1,f]
+     Z1_bar = XQ + LN_out_bar
+diff --git a/ttt/triton_kernel/ttt_mlp_decode.py b/ttt/triton_kernel/ttt_mlp_decode.py
+index faa35e7..8b00353 100644
+--- a/ttt/triton_kernel/ttt_mlp_decode.py
++++ b/ttt/triton_kernel/ttt_mlp_decode.py
+@@ -113,7 +113,7 @@ def _decode_token_ker(
+
+     mu = (tl.sum(Z2, 1) / HF).to(O_dtype)
+     var = (tl.sum((Z2 - mu) * (Z2 - mu), 1) / HF).to(O_dtype)
+-    std = tl.sqrt(var + 1e-6).to(O_dtype)
++    std = tl.sqrt((var + 1e-6).to(tl.float32)).to(O_dtype)  # ROCm: sqrt requires fp32/fp64 input
+     Z2_hat = ((Z2 - mu) / std).to(O_dtype)  # [1,f]
+     LN_out = ln_weight * Z2_hat + ln_bias  # [1,f] * [K=1,f] + [1,f]
+     dl_dLN_out = LN_out - l2_target  # [1,f]
+@@ -153,7 +153,7 @@ def _decode_token_ker(
+     ## residual + postln
+     mu_bar = (tl.sum(Z2_bar, 1) / HF).to(O_dtype)
+     var_bar = (tl.sum((Z2_bar - mu_bar) * (Z2_bar - mu_bar), 1) / HF).to(O_dtype)
+-    std_bar = tl.sqrt(var_bar + 1e-6).to(O_dtype)
++    std_bar = tl.sqrt((var_bar + 1e-6).to(tl.float32)).to(O_dtype)  # ROCm: sqrt requires fp32/fp64 input
+     Z2_bar_hat = ((Z2_bar - mu_bar) / std_bar).to(O_dtype)  # [1,f]
+     LN_out_bar = ln_weight * Z2_bar_hat + ln_bias  # [1,f] * [K=1,f] + [1,f]
+     Z2_bar = XQ + LN_out_bar
+@@ -269,7 +269,7 @@ def _decode_last_token_in_mini_batch_ker(
+
+     mu = (tl.sum(Z2, 1) / HF).to(O_dtype)
+     var = (tl.sum((Z2 - mu) * (Z2 - mu), 1) / HF).to(O_dtype)
+-    std = tl.sqrt(var + 1e-6).to(O_dtype)
++    std = tl.sqrt((var + 1e-6).to(tl.float32)).to(O_dtype)  # ROCm: sqrt requires fp32/fp64 input
+     Z2_hat = ((Z2 - mu) / std).to(O_dtype)  # [1,f]
+     LN_out = ln_weight * Z2_hat + ln_bias  # [1,f] * [K=1,f] + [1,f]
+     dl_dLN_out = LN_out - l2_target  # [1,f]
+@@ -309,7 +309,7 @@ def _decode_last_token_in_mini_batch_ker(
+     ## residual + postln
+     mu_bar = (tl.sum(Z2_bar, 1) / HF).to(O_dtype)
+     var_bar = (tl.sum((Z2_bar - mu_bar) * (Z2_bar - mu_bar), 1) / HF).to(O_dtype)
+-    std_bar = tl.sqrt(var_bar + 1e-6).to(O_dtype)
++    std_bar = tl.sqrt((var_bar + 1e-6).to(tl.float32)).to(O_dtype)  # ROCm: sqrt requires fp32/fp64 input
+     Z2_bar_hat = ((Z2_bar - mu_bar) / std_bar).to(O_dtype)  # [1,f]
+     LN_out_bar = ln_weight * Z2_bar_hat + ln_bias  # [1,f] * [K=1,f] + [1,f]
+     Z2_bar = XQ + LN_out_bar

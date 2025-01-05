@@ -1,0 +1,54 @@
+--- a/ttt/configuration_ttt.py	2026-02-08 07:19:03.029028162 +0100
++++ b/ttt/configuration_ttt.py	2026-02-08 07:19:43.452841718 +0100
+@@ -3,6 +3,42 @@
+ from transformers.configuration_utils import PretrainedConfig
+ 
+ TTT_STANDARD_CONFIGS = {
++    "125m": {
++        "hidden_size": 768,
++        "intermediate_size": 2048,
++        "num_hidden_layers": 12,
++        "num_attention_heads": 12,
++        "rms_norm_eps": 1e-6,
++        "tie_word_embeddings": True,
++        "conv_before_ttt": True,
++    },
++    "125m-h32": {
++        "hidden_size": 768,
++        "intermediate_size": 2048,
++        "num_hidden_layers": 12,
++        "num_attention_heads": 24,
++        "rms_norm_eps": 1e-6,
++        "tie_word_embeddings": True,
++        "conv_before_ttt": True,
++    },
++    "350m": {
++        "hidden_size": 1024,
++        "intermediate_size": 2736,
++        "num_hidden_layers": 24,
++        "num_attention_heads": 16,
++        "rms_norm_eps": 1e-6,
++        "tie_word_embeddings": True,
++        "conv_before_ttt": True,
++    },
++    "760m": {
++        "hidden_size": 1536,
++        "intermediate_size": 4096,
++        "num_hidden_layers": 24,
++        "num_attention_heads": 16,
++        "rms_norm_eps": 1e-6,
++        "tie_word_embeddings": True,
++        "conv_before_ttt": True,
++    },
+     "1b": {
+         "hidden_size": 2048,
+         "intermediate_size": 5504,
+@@ -10,7 +46,7 @@
+         "num_attention_heads": 32,
+         "rms_norm_eps": 1e-6,
+         "tie_word_embeddings": True,
+-        'conv_before_ttt': True,
++        "conv_before_ttt": True,
+     },
+ }
+ 

@@ -1,0 +1,17 @@
+[package]
+name = "ttt-data"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+burn = { workspace = true, features = ["train", "sqlite", "dataset"] }
+tokenizers.workspace = true
+memmap2.workspace = true
+rayon.workspace = true
+bytemuck.workspace = true
+dirs.workspace = true
+serde.workspace = true
+derive-new.workspace = true
+
+[features]
+default = []

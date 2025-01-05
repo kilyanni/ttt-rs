@@ -1,0 +1,2 @@
+[cargo]
+features = ["rocm", "test-utils"]

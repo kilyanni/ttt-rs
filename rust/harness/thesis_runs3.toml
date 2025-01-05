@@ -1,0 +1,87 @@
+[harness]
+total_vram_gb = 20
+vram_margin = 0.40
+on_failure = "retry"
+max_retries = 5
+state_file = "./harness_state.json"
+
+hang_timeout_secs = 600
+idle_timeout_secs = 300
+settle_grace_secs = 60
+
+[harness.runpod]
+enabled = true
+
+[defaults]
+tokenizer = "/workspace/tinystories-4k.json"
+size = "60m"
+batch = 32
+mini_batch_size = 16
+warmup_steps = 500
+max_seq_len = 256
+lr = 4e-3
+grad_accum = 2
+seed = 43
+epochs = 5
+dtype = "bf16"
+out_prefix = "/workspace/runs-4"
+
+
+[[runs]]
+name = "mlp-rerun"
+layer_type = "mlp"
+base_lr = 0.1
+
+[[runs]]
+name = "mlp2-rerun"
+layer_type = "mlp2"
+base_lr = 0.1
+
+[[runs]]
+name = "mlp3-rerun"
+layer_type = "mlp3"
+base_lr = 0.1
+
+[[runs]]
+name = "mlp4-rerun"
+layer_type = "mlp4"
+base_lr = 0.1
+
+
+
+[[runs]]
+name = "mlp-exp-1-rerun"
+layer_type = "mlp"
+base_lr = 0.1
+mlp_expansion = 1
+
+[[runs]]
+name = "mlp2-exp-1-rerun"
+layer_type = "mlp2"
+base_lr = 0.1
+mlp_expansion = 1
+
+[[runs]]
+name = "mlp3-exp-1-rerun"
+layer_type = "mlp3"
+base_lr = 0.1
+mlp_expansion = 1
+
+[[runs]]
+name = "mlp4-exp-1-rerun"
+layer_type = "mlp4"
+base_lr = 0.1
+mlp_expansion = 1
+
+
+[[runs]]
+name = "mlp-exp-2-rerun"
+layer_type = "mlp"
+base_lr = 0.1
+mlp_expansion = 2
+
+[[runs]]
+name = "mlp-exp-8-rerun"
+layer_type = "mlp"
+base_lr = 0.1
+mlp_expansion = 8

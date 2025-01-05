@@ -1,0 +1,30 @@
+--- a/ttt/models/model.py	2026-02-08 07:22:01.955209162 +0100
++++ b/ttt/models/model.py	2026-02-08 07:22:37.129049837 +0100
+@@ -75,6 +75,27 @@
+         "pre_conv": True,
+         "conv_width": 4,
+     },
++    "125m-h32-TTT": {
++        "vocab_size": 32000,
++        "num_hidden_layers": 12,
++        "hidden_size": 768,
++        "num_attention_heads": 24,
++        "intermediate_size": 2048,
++        "max_sequence_length": 2048,
++        "initializer_range": 0.02,
++        "rms_norm_eps": 1e-6,
++        "use_cache": True,
++        "tie_word_embeddings": True,
++        "seq_modeling_block": "ttt_linear",
++        "ttt_base_lr": 1.0,
++        "ttt_base_lr_init": -1.0,
++        "ttt_base_lr_warmup": -1,
++        "mini_batch_size": 16,
++        "remat_mini_batch_group_size": 4,
++        "rope_theta": 10000.0,
++        "pre_conv": True,
++        "conv_width": 4,
++    },
+     "350m": {
+         "vocab_size": 32000,
+         "num_hidden_layers": 24,

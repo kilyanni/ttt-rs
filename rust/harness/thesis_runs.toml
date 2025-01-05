@@ -1,0 +1,167 @@
+[harness]
+total_vram_gb = 20
+vram_margin = 0.40
+on_failure = "retry"
+max_retries = 2
+state_file = "./harness_state.json"
+
+hang_timeout_secs = 600
+idle_timeout_secs = 300
+settle_grace_secs = 60
+
+[harness.runpod]
+enabled = true
+
+[defaults]
+tokenizer = "/workspace/tinystories-4k.json"
+size = "60m"
+batch = 32
+mini_batch_size = 32
+warmup_steps = 500
+max_seq_len = 1024
+lr = 4e-3
+grad_accum = 2
+seed = 42
+epochs = 4
+dtype = "bf16"
+out_prefix = "/workspace/runs-3"
+
+# Individual training runs
+
+# [[runs]]
+# name = "mlp"
+# layer_type = "mlp"
+# ttt_base_lr = 0.1
+
+# [[runs]]
+# name = "mlp4"
+# layer_type = "mlp4"
+# ttt_base_lr = 0.1
+
+# [[runs]]
+# name = "mlp-exp-1"
+# layer_type = "mlp"
+# mlp_expansion = 1
+# ttt_base_lr = 0.1
+
+# [[runs]]
+# name = "linear-adam"
+# layer_type = "linear-adam"
+# ttt_base_lr = 1.0
+
+# [[runs]]
+# name = "linear-rope"
+# layer_type = "linear"
+# ttt_base_lr = 1.0
+
+# [[runs]]
+# name = "linear-none"
+# layer_type = "linear"
+# pos_encoding = "none"
+# ttt_base_lr = 1.0
+
+# [[runs]]
+# name = "linear-abs"
+# layer_type = "linear"
+# pos_encoding = "absolute"
+# ttt_base_lr = 1.0
+
+# [[runs]]
+# name = "mlp-exp-8"
+# layer_type = "mlp"
+# mlp_expansion = 8
+# ttt_base_lr = 0.1
+
+# [[runs]]
+# name = "mlp2"
+# layer_type = "mlp2"
+# ttt_base_lr = 0.1
+
+# [[runs]]
+# name = "mlp3"
+# layer_type = "mlp3"
+# ttt_base_lr = 0.1
+
+# [[runs]]
+# name = "mlp4-exp-1"
+# layer_type = "mlp4"
+# mlp_expansion = 1
+# ttt_base_lr = 0.1
+
+# [[runs]]
+# name = "mlp-exp-2"
+# layer_type = "mlp"
+# mlp_expansion = 1
+# ttt_base_lr = 0.1
+
+# [[runs]]
+# name = "mlp4-exp-8"
+# layer_type = "mlp4"
+# mlp_expansion = 8
+# ttt_base_lr = 0.1
+
+[[runs]]
+name = "linear-adam-low-lr"
+layer_type = "linear-adam"
+ttt_base_lr = 0.1
+
+[[runs]]
+name = "linear-adam-high-lr"
+layer_type = "linear-adam"
+ttt_base_lr = 5.0
+
+# new
+
+[[runs]]
+name = "linear-adam-low-train-lr"
+layer_type = "linear-adam"
+ttt_base_lr = 0.1
+lr = 2e-3
+grad_accum = 4
+
+[[runs]]
+name = "linear-rope-global"
+layer_type = "linear"
+pos_encoding = "rope-global"
+ttt_base_lr = 1.0
+
+
+[[runs]]
+name = "linear-adam-low-train-lr-short"
+layer_type = "linear-adam"
+ttt_base_lr = 0.1
+lr = 2e-3
+grad_accum = 4
+max_seq_len = 512
+
+
+[[runs]]
+name = "linear-rope-global-short"
+layer_type = "linear"
+pos_encoding = "rope-global"
+ttt_base_lr = 1.0
+max_seq_len = 256
+mini_batch_size = 16
+
+[[runs]]
+name = "linear-rope-short"
+layer_type = "linear"
+ttt_base_lr = 1.0
+max_seq_len = 256
+mini_batch_size = 16
+
+[[runs]]
+name = "linear-none-short"
+layer_type = "linear"
+pos_encoding = "none"
+ttt_base_lr = 1.0
+max_seq_len = 256
+mini_batch_size = 16
+
+[[runs]]
+name = "linear-abs-short"
+layer_type = "linear"
+pos_encoding = "absolute"
+ttt_base_lr = 1.0
+max_seq_len = 256
+mini_batch_size = 16

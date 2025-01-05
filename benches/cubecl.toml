@@ -1,0 +1,9 @@
+# CubeCL configuration
+# See: https://burn.dev/books/cubecl/advanced-usage/config.html
+
+[compilation]
+#cache = "global"
+cache = "target"
+
+[autotune]
+level = "full"

@@ -1,0 +1,25 @@
+diff --git a/ttt/models/ttt_layer.py b/ttt/models/ttt_layer.py
+index 7831e6c..eaf91ba 100644
+--- a/ttt/models/ttt_layer.py
++++ b/ttt/models/ttt_layer.py
+@@ -421,7 +421,7 @@ class TTTLinearBase(TTTBase):
+         else:
+             ttt_loss_mse_step_1 = None
+ 
+-        ttt_params_mini_batch_new = (W1_bar_last, b1_bar_last)
++        ttt_params_mini_batch_new = (W1_bar_last.astype(self.dtype), b1_bar_last.astype(self.dtype))
+ 
+         return (
+             ttt_params_mini_batch_new,
+@@ -592,7 +592,10 @@ class TTTMLPBase(TTTBase):
+         else:
+             ttt_loss_mse_step_1 = None
+ 
+-        ttt_params_mini_batch_new = (W1_bar_last, W2_bar_last, b1_bar_last, b2_bar_last)
++        ttt_params_mini_batch_new = (
++            W1_bar_last.astype(self.dtype), W2_bar_last.astype(self.dtype),
++            b1_bar_last.astype(self.dtype), b2_bar_last.astype(self.dtype),
++        )
+ 
+         return (
+             ttt_params_mini_batch_new,

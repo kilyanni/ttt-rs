@@ -1,0 +1,31 @@
+[package]
+name = "ttt-fused"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+ttt-kernels = { workspace = true }
+ttt-core = { workspace = true }
+burn = { workspace = true, features = ["autodiff", "cubecl", "fusion"] }
+burn-fusion.workspace = true
+burn-cubecl.workspace = true
+burn-backend.workspace = true
+cubecl.workspace = true
+cubek.workspace = true
+thundercube.workspace = true
+tracing.workspace = true
+paste.workspace = true
+
+[dev-dependencies]
+test-case.workspace = true
+rand.workspace = true
+
+[features]
+default = []
+bf16 = ["ttt-core/bf16"]
+rocm = ["ttt-core/rocm"]
+cuda = ["ttt-core/cuda"]
+wgpu = ["ttt-core/wgpu"]
+cpu = ["ttt-core/cpu"]
+streaming = []
+tile-tuning = []

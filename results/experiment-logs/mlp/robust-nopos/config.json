@@ -1,0 +1,50 @@
+{
+  "model_config": {
+    "arch": {
+      "hidden_size": 512,
+      "num_hidden_layers": 6,
+      "num_heads": 8,
+      "intermediate_size": 768,
+      "vocab_size": 4192
+    },
+    "ttt": {
+      "layer_type": "mlp",
+      "pos_encoding": "none",
+      "base_lr": 0.1,
+      "mini_batch_size": 16,
+      "max_seq_len": 256,
+      "mlp_expansion_factor": 1,
+      "threads": null,
+      "rope_theta": 10000.0,
+      "conv_kernel_size": 4,
+      "conv_before_ttt": false,
+      "use_gate": false,
+      "share_qk": false,
+      "tie_word_embeddings": true,
+      "epsilon": 1e-6,
+      "dtype": "bf16",
+      "checkpoint_interval": 1,
+      "adam_lr": 0.001,
+      "adam_beta1": 0.9,
+      "adam_beta2": 0.999
+    }
+  },
+  "train": {
+    "batch": 32,
+    "epochs": 10,
+    "lr": 0.004,
+    "samples": 10000,
+    "test_samples": 1000,
+    "grad_accum": 2,
+    "workers": 2,
+    "warmup_steps": 500,
+    "beta1": 0.9,
+    "beta2": 0.999,
+    "weight_decay": 0.01,
+    "grad_clip_norm": 1.0
+  },
+  "pad_token": 0,
+  "artifact_dir": "/workspace/runs-5/mlp-1x-nopos",
+  "resume_epoch": null,
+  "dry_run": false
+}

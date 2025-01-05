@@ -1,0 +1,13 @@
+--- a/ttt/infra/jax_utils.py
++++ b/ttt/infra/jax_utils.py
+@@ -14,8 +14,9 @@ from jax.sharding import PartitionSpec as PS
+ from jax.sharding import Mesh
+ from jax.experimental import mesh_utils
+-from jax.experimental.pjit import with_sharding_constraint as _with_sharding_constraint
+-from jax.experimental.pjit import pjit
++from jax.lax import with_sharding_constraint as _with_sharding_constraint
++# pjit merged into jit in JAX 0.4.1+
++pjit = jax.jit
+ from jax.interpreters import pxla
+ import numpy as np
+ import torch

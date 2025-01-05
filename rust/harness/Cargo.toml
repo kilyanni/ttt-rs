@@ -1,0 +1,30 @@
+[package]
+name = "ttt-harness"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+ttt-config.workspace = true
+serde = { workspace = true, features = ["derive"] }
+serde_json.workspace = true
+clap.workspace = true
+tokio = { version = "1", features = ["full", "process"] }
+toml = "0.9"
+fs2 = "0.4"
+indicatif = "0.18"
+thiserror = "2"
+tracing.workspace = true
+tracing-subscriber.workspace = true
+tracing-indicatif = "0.3"
+libc = "0.2"
+chrono = "0.4"
+
+[[bin]]
+name = "ttt-harness"
+path = "src/main.rs"
+
+[lib]
+path = "src/lib.rs"
+
+[dev-dependencies]
+tempfile = "3"
